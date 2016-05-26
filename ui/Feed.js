@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-apollo';
 import TimeAgo from 'react-timeago';
 import { emojify } from 'node-emoji';
+import { Link } from 'react-router';
 
 const Loading = () => (
   <div>Loading...</div>
@@ -64,8 +65,8 @@ const FeedEntry = ({ entry, currentUser, onVote }) => (
   </div>
 )
 
-const FeedContent = ({ entries, currentUser, onVote }) => (
-  <div> {
+const FeedContent = ({ entries, currentUser, onVote, hasNextPage, location }) => {
+  return (<div> {
     entries.map((entry) => (
       <FeedEntry
         key={entry.repository.full_name}
@@ -74,54 +75,76 @@ const FeedContent = ({ entries, currentUser, onVote }) => (
         onVote={onVote}
       />
     ))
-  } </div>
-);
+  }
+  <NextPage hasNextPage={ hasNextPage } location = { location } />
+  </div>
+)};
 
-const Feed = ({ data, mutations }) => {
+const Feed = ({ data, mutations, location }) => {
   if (data.loading) {
     return <Loading />
   } else {
     return <FeedContent
-      entries={ data.feed }
+      entries={ data.feed.entries }
+      hasNextPage = { data.feed.hasNextPage }
       currentUser={ data.currentUser }
       onVote={ (...args) => {
         mutations.vote(...args)
-      } }
+      }}
+      location = { location }
     />
   }
 }
 
+const NextPage = ({hasNextPage, location}) => {
+  if(hasNextPage) {
+    return (
+      <Link to={{pathname: '/', query: { offset: (location.query.offset || 0) + 5 }}}
+      >Next Page</Link>
+    )
+  } else {
+    return (
+      //TODO there's probably some better way to do a no-render
+      <div />
+    )
+  }
+}
+
 const FeedWithData = connect({
-  mapQueriesToProps: ({ ownProps }) => ({
+  mapQueriesToProps: ({ ownProps }) => {
+    return {
     data: {
       query: gql`
-        query Feed($type: FeedType!) {
+        query Feed($type: FeedType!, $after: Int) {
           # Eventually move this into a no fetch query right on the entry
           # since we literally just need this info to determine whether to
           # show upvote/downvote buttons
           currentUser {
             login
           }
-          feed(type: $type) {
-            createdAt
-            score
-            commentCount
-            id
-            postedBy {
-              login
-              html_url
-            }
+          feed(type: $type, after: $after) {
+            hasNextPage
+            entries {
+              createdAt
+              score
+              commentCount
+              id
+              postedBy {
+                login
+                html_url
+              }
 
-            repository {
-              name
-              full_name
-              description
-              html_url
-              stargazers_count
-              open_issues_count
-              created_at
-              owner {
-                avatar_url
+              repository {
+                name
+                full_name
+                description
+                html_url
+                stargazers_count
+                open_issues_count
+                created_at
+                owner {
+                  avatar_url
+                }
               }
             }
           }
@@ -133,10 +156,11 @@ const FeedWithData = connect({
           ownProps.params.type &&
           ownProps.params.type.toUpperCase()
         ) || 'TOP',
+        after: parseInt(ownProps.location.query.offset || "0"),
       },
       forceFetch: true,
     },
-  }),
+  }},
 
   mapMutationsToProps: () => ({
     vote: (repoFullName, type) => ({

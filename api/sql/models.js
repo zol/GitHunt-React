@@ -11,30 +11,59 @@ function convertNullColsToZero(row) {
   return row;
 }
 
-function mapNullColsToZero(query) {
+function mapNullColsToZero(query, hasNextPage) {
   return query.then((rows) => {
     if (rows.length) {
-      return rows.map(convertNullColsToZero);
+      return rows.map(convertNullColsToZero).map((row) => {
+        row.hasNextPage = hasNextPage;
+        return row;
+      });
     }
 
     return convertNullColsToZero(rows);
   });
 }
 
+export class FeedPage {
+  get(type, after) {
+    return knex('entries')
+      .offset(after)
+      .then((obj) => {
+        var hasNextPage = (obj.length > maxEntriesPerPage);
+        return {
+          hasNextPage: hasNextPage,
+          entries: new Entries().getForFeed(type, after),
+        };
+      });
+  }
+
+  checkNextPage(type, after) {
+    return knex('entries')
+      .offset(after)
+      .then((obj) => {
+        const hasNextPage = (obj.length > maxEntriesPerPage);
+        return hasNextPage;
+      });
+  }
+}
+
+const maxEntriesPerPage = 5;
+
 export class Entries {
   getForFeed(type, after) {
     const query = knex('entries')
       .modify(addSelectToEntryQuery);
+    const hasNextPage = false;
 
     if (type === 'NEW') {
-      query.orderBy('created_at', 'desc');
+      query.orderBy('created_at', 'desc').limit(maxEntriesPerPage).offset(after)
     } else if (type === 'TOP') {
-      query.orderBy('score', 'desc');
+      query.orderBy('score', 'desc').limit(maxEntriesPerPage).offset(after)
     } else {
       throw new Error(`Feed type ${type} not implemented.`);
     }
 
-    return mapNullColsToZero(query);
+    return mapNullColsToZero(query, hasNextPage);
   }
 
   getByRepoFullName(name) {
@@ -90,7 +119,7 @@ export class Entries {
 
     // Rate limiting logic
     return knex.transaction((trx) => {
-      return trx('entries') 
+      return trx('entries')
         .count()
         .where('posted_by', '=', username)
         .where('created_at', '>', Date.now() - rateLimitMs)
@@ -108,8 +137,8 @@ export class Entries {
                 repository_name: repoFullName,
                 posted_by: username
               });
-          }             
-        }); 
+          }
+        });
     });
   }
 }

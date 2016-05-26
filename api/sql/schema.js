@@ -7,6 +7,11 @@ type Comment {
   content: String!
 }
 
+type FeedPage {
+  hasNextPage: Boolean!
+  entries: [Entry]!
+}
+
 type Entry {
   repository: Repository!
   postedBy: User!
@@ -19,6 +24,10 @@ type Entry {
 `];
 
 export const resolvers = {
+  FeedPage: {
+    hasNextPage: property('hasNextPage'),
+    entries: property('entries'),
+  },
   Entry: {
     repository({ repository_name }, _, context) {
       return context.Repositories.getByFullName(repository_name);
