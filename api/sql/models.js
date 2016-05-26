@@ -47,7 +47,7 @@ export class FeedPage {
   }
 }
 
-const maxEntriesPerPage = 5;
+const maxEntriesPerPage = 15;
 
 export class Entries {
   getForFeed(type, after) {
