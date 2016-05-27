@@ -99,7 +99,7 @@ const Feed = ({ data, mutations, location }) => {
 const NextPage = ({hasNextPage, location}) => {
   if(hasNextPage) {
     return (
-      <Link to={{pathname: '/', query: { offset: (location.query.offset || 0) + 15 }}}
+      <Link to={{pathname: location.pathname, query: { offset: (location.query.offset || 0) + 15 }}}
       >Next Page</Link>
     )
   } else {
