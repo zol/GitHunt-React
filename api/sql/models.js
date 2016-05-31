@@ -1,4 +1,5 @@
 import knex from './connector';
+import { config } from '../../config';
 
 function addSelectToEntryQuery(query) {
   query.select('entries.*', knex.raw('SUM(votes.vote_value) as score'))
@@ -24,14 +25,12 @@ function mapNullColsToZero(query, hasNextPage) {
   });
 }
 
-const maxEntriesPerPage = 15;
-
 export class Entries {
   getFeedPage(type, after) {
     return knex('entries')
       .offset(after)
       .then((obj) => {
-        var hasNextPage = (obj.length > maxEntriesPerPage);
+        var hasNextPage = (obj.length > config.itemsPerPage);
         return {
           hasNextPage: hasNextPage,
           entries: new Entries().getForFeed(type, after),
@@ -45,9 +44,9 @@ export class Entries {
     const hasNextPage = false;
 
     if (type === 'NEW') {
-      query.orderBy('created_at', 'desc').limit(maxEntriesPerPage).offset(after)
+      query.orderBy('created_at', 'desc').limit(config.itemsPerPage).offset(after)
     } else if (type === 'TOP') {
-      query.orderBy('score', 'desc').limit(maxEntriesPerPage).offset(after)
+      query.orderBy('score', 'desc').limit(config.itemsPerPage).offset(after)
     } else {
       throw new Error(`Feed type ${type} not implemented.`);
     }

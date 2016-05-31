@@ -3,6 +3,7 @@ import { connect } from 'react-apollo';
 import TimeAgo from 'react-timeago';
 import { emojify } from 'node-emoji';
 import { Link } from 'react-router';
+import { config } from '../config';
 
 const Loading = () => (
   <div>Loading...</div>
@@ -65,8 +66,8 @@ const FeedEntry = ({ entry, currentUser, onVote }) => (
   </div>
 )
 
-const FeedContent = ({ entries, currentUser, onVote, hasNextPage, location }) => {
-  return (<div> {
+const FeedContent = ({ entries, currentUser, onVote, hasNextPage, location }) => (
+  <div> {
     entries.map((entry) => (
       <FeedEntry
         key={entry.repository.full_name}
@@ -74,11 +75,11 @@ const FeedContent = ({ entries, currentUser, onVote, hasNextPage, location }) =>
         currentUser={currentUser}
         onVote={onVote}
       />
-    ))
-  }
-  <NextPage hasNextPage={ hasNextPage } location = { location } />
+      ))
+    } 
+    <NextPage hasNextPage={ hasNextPage } location = { location } />
   </div>
-)};
+);
 
 const Feed = ({ data, mutations, location }) => {
   if (data.loading) {
@@ -99,14 +100,11 @@ const Feed = ({ data, mutations, location }) => {
 const NextPage = ({hasNextPage, location}) => {
   if(hasNextPage) {
     return (
-      <Link to={{pathname: '/', query: { offset: (location.query.offset || 0) + 15 }}}
+      <Link to={{pathname: '/', query: { offset: (location.query.offset || 0) + config.itemsPerPage }}}
       >Next Page</Link>
     )
   } else {
-    return (
-      //TODO there's probably some better way to do a no-render
-      <div />
-    )
+    return false;
   }
 }
 
