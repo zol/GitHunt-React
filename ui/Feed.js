@@ -13,16 +13,16 @@ const InfoLabel = ({ label, value }) => (
   <span className="label label-info">{ label }: { value }</span>
 )
 
-const VoteButtons = ({ score, onVote }) => {
+const VoteButtons = ({ score, onVote, vote }) => {
   return (
     <span>
       <button
-        className="btn btn-score"
+        className={ vote.vote_value === 1 ? 'btn btn-score active' : 'btn btn-score'}
         onClick={ onVote.bind(null, 'UP') }
       ><span className="glyphicon glyphicon-triangle-top" aria-hidden="true"></span></button>
       <div className="vote-score">{ score }</div>
       <button
-        className="btn btn-score"
+        className={ vote.vote_value === -1 ? 'btn btn-score active' : 'btn btn-score'}
         onClick={ onVote.bind(null, 'DOWN') }
       ><span className="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></button>
       &nbsp;
@@ -33,7 +33,7 @@ const VoteButtons = ({ score, onVote }) => {
 const FeedEntry = ({ entry, currentUser, onVote }) => (
   <div className="media">
     <div className="media-vote">
-      { currentUser && <VoteButtons score={ entry.score } onVote={(type) => {
+      { currentUser && <VoteButtons score={ entry.score } vote={ entry.vote } onVote={(type) => {
         onVote(entry.repository.full_name, type);
       }}/> }
     </div>
@@ -167,6 +167,9 @@ const FeedWithData = connect({
           vote(repoFullName: $repoFullName, type: $type) {
             score
             id
+            vote {
+              vote_value
+            }
           }
         }
       `,

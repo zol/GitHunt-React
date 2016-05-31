@@ -12,6 +12,10 @@ type FeedPage {
   entries: [Entry]!
 }
 
+type Vote {
+  vote_value: Int!
+}
+
 type Entry {
   repository: Repository!
   postedBy: User!
@@ -20,6 +24,7 @@ type Entry {
   comments: [Comment]! # Should this be paginated?
   commentCount: Int!
   id: Int!
+  vote: Vote!
 }
 `];
 
@@ -40,6 +45,10 @@ export const resolvers = {
     },
     createdAt: property('created_at'),
     commentCount: constant(0),
+    vote({ repository_name }, _, context) {
+      if (!context.user) return { vote_value: 0 };
+      return context.Entries.haveVotedForEntry(repository_name, context.user.login);
+    },
   },
   Comment: {
     postedBy() {
