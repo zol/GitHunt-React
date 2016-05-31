@@ -13,6 +13,58 @@ const repos = [
     repository_name: 'meteor/meteor',
     posted_by: 'tmeasday',
   },
+  {
+    repository_name: 'Poincare/QLearn',
+    posted_by: 'Poincare',
+  },
+  {
+    repository_name: 'dancannon/gorethink',
+    posted_by: 'stubailo',
+  },
+  {
+    repository_name: 'xlvector/hector',
+    posted_by: 'tmeasday',
+  },
+  {
+    repository_name: 'eclipse/omr',
+    posted_by: 'stubailo',
+  },
+  {
+    repository_name: 'eclipse/smarthome',
+    posted_by: 'tmeasday',
+  },
+  {
+    repository_name: 'pydata/pandas',
+    posted_by: 'Poincare',
+  },
+  {
+    repository_name: 'dutchcoders/transfer.sh',
+    posted_by: 'stubailo',
+  },
+  {
+    repository_name: 'dutchcoders/goftp',
+    posted_by: 'Poincare',
+  },
+  {
+    repository_name: 'gabrielecirulli/2048',
+    posted_by: 'stubailo',
+  },
+  {
+    repository_name: 'Hextris/hextris',
+    posted_by: 'helfer',
+  },
+  {
+    repository_name: 'Q42/0hh1',
+    posted_by: 'Poincare',
+  },
+  {
+    repository_name: 'facebook/reason',
+    posted_by: 'tmeasday',
+  },
+  {
+    repository_name: 'facebook/react',
+    posted_by: 'Poincare',
+  },
 ];
 
 const repoIds = {};
@@ -22,20 +74,14 @@ const usenames = [
   'helfer',
 ];
 
-const votes = {
-  [repos[0].repository_name]: {
-    stubailo: 1,
-    helfer: 1,
-  },
-  [repos[1].repository_name]: {
-    helfer: 1,
-  },
-  [repos[2].repository_name]: {
-
-  },
-};
+const votes = {};
 
 export function seed(knex, Promise) {
+  //set up the repos with no votes
+  repos.forEach((repo) => {
+    votes[repo.repository_name] = {}
+  });
+
   return Promise.all([
     knex('entries').del(),
     knex('votes').del(),

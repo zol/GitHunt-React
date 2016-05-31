@@ -24,8 +24,10 @@ function mapNullColsToZero(query, hasNextPage) {
   });
 }
 
-export class FeedPage {
-  get(type, after) {
+const maxEntriesPerPage = 15;
+
+export class Entries {
+  getFeedPage(type, after) {
     return knex('entries')
       .offset(after)
       .then((obj) => {
@@ -36,20 +38,7 @@ export class FeedPage {
         };
       });
   }
-
-  checkNextPage(type, after) {
-    return knex('entries')
-      .offset(after)
-      .then((obj) => {
-        const hasNextPage = (obj.length > maxEntriesPerPage);
-        return hasNextPage;
-      });
-  }
-}
-
-const maxEntriesPerPage = 15;
-
-export class Entries {
+ 
   getForFeed(type, after) {
     const query = knex('entries')
       .modify(addSelectToEntryQuery);

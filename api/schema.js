@@ -51,7 +51,7 @@ schema {
 const rootResolvers = {
   Query: {
     feed(_, { type, after }, context) {
-      return context.FeedPage.get(type, after);
+      return context.Entries.getFeedPage(type, after);
     },
     entry(_, { repoFullName }, context) {
       return context.Entries.getByRepoFullName(repoFullName);
