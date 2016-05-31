@@ -12,11 +12,10 @@ function convertNullColsToZero(row) {
   return row;
 }
 
-function mapNullColsToZero(query, hasNextPage) {
+function mapNullColsToZero(query) {
   return query.then((rows) => {
     if (rows.length) {
       return rows.map(convertNullColsToZero).map((row) => {
-        row.hasNextPage = hasNextPage;
         return row;
       });
     }
@@ -26,27 +25,28 @@ function mapNullColsToZero(query, hasNextPage) {
 }
 
 export class Entries {
-  getFeedPage(type, after) {
+  getFeedPage(type, offset) {
     return knex('entries')
-      .offset(after)
+      .offset(offset)
+      .limit(config.itemsPerPage + 1)
       .then((obj) => {
         var hasNextPage = (obj.length > config.itemsPerPage);
         return {
           hasNextPage: hasNextPage,
-          entries: new Entries().getForFeed(type, after),
+          entries: new Entries().getForFeed(type, offset),
         };
       });
   }
  
-  getForFeed(type, after) {
+  getForFeed(type, offset) {
     const query = knex('entries')
       .modify(addSelectToEntryQuery);
     const hasNextPage = false;
 
     if (type === 'NEW') {
-      query.orderBy('created_at', 'desc').limit(config.itemsPerPage).offset(after)
+      query.orderBy('created_at', 'desc').limit(config.itemsPerPage).offset(offset)
     } else if (type === 'TOP') {
-      query.orderBy('score', 'desc').limit(config.itemsPerPage).offset(after)
+      query.orderBy('score', 'desc').limit(config.itemsPerPage).offset(offset)
     } else {
       throw new Error(`Feed type ${type} not implemented.`);
     }

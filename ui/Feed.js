@@ -109,18 +109,17 @@ const NextPage = ({hasNextPage, location}) => {
 }
 
 const FeedWithData = connect({
-  mapQueriesToProps: ({ ownProps }) => {
-    return {
+  mapQueriesToProps: ({ ownProps }) => ({
     data: {
       query: gql`
-        query Feed($type: FeedType!, $after: Int) {
+        query Feed($type: FeedType!, $offset: Int) {
           # Eventually move this into a no fetch query right on the entry
           # since we literally just need this info to determine whether to
           # show upvote/downvote buttons
           currentUser {
             login
           }
-          feed(type: $type, after: $after) {
+          feed(type: $type, offset: $offset) {
             hasNextPage
             entries {
               createdAt
@@ -154,11 +153,11 @@ const FeedWithData = connect({
           ownProps.params.type &&
           ownProps.params.type.toUpperCase()
         ) || 'TOP',
-        after: parseInt(ownProps.location.query.offset || "0"),
+        offset: parseInt(ownProps.location.query.offset || "0"),
       },
       forceFetch: true,
     },
-  }},
+  }),
 
   mapMutationsToProps: () => ({
     vote: (repoFullName, type) => ({
