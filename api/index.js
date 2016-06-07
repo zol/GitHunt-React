@@ -1,64 +1,45 @@
-import express from 'express';
-import session from 'express-session';
+import apiServer from 'saturn-framework/server/api';
+
 import passport from 'passport';
 import { apolloServer } from 'apollo-server';
 import { Strategy as GitHubStrategy } from 'passport-github';
-import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
-import knex from './sql/connector';
-
-var KnexSessionStore = require('connect-session-knex')(session);
-var store = new KnexSessionStore({
-  knex,
-});
 
 import { schema, resolvers } from './schema';
 import { GitHubConnector } from './github/connector';
 import { Repositories, Users } from './github/models';
 import { Entries } from './sql/models';
 
-dotenv.config({silent: true});
-let PORT = 3010;
-
-if (process.env.PORT) {
-  PORT = parseInt(process.env.PORT, 10) + 100;
-}
+import knex from './sql/connector';
+import session from 'express-session';
+const KnexSessionStore = require('connect-session-knex')(session);
+const store = new KnexSessionStore({
+  knex,
+});
 
 const {
   GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET,
 } = process.env;
 
-const app = express();
-
-app.use(session({
+apiServer.use(session({
+  // XXX: secret
   secret: 'your secret',
   resave: true,
   saveUninitialized: true,
   store,
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-
-app.get('/login/github',
+apiServer.get('/login/github',
   passport.authenticate('github'));
 
-app.get('/login/github/callback',
+apiServer.get('/login/github/callback',
   passport.authenticate('github', { failureRedirect: '/' }),
-  function(req, res) {
+  (req, res) => {
     res.redirect('/');
   });
 
-app.get('/logout', function(req, res){
-  req.logout();
-  res.redirect('/');
-});
 
-app.use('/graphql', apolloServer((req) => {
+apiServer.use('/graphql', apolloServer((req) => {
   // Get the query, the same way express-graphql does it
   // https://github.com/graphql/express-graphql/blob/3fa6e68582d6d933d37fa9e841da5d2aa39261cd/src/index.js#L257
   const query = req.query.query || req.body.query;
@@ -95,28 +76,27 @@ app.use('/graphql', apolloServer((req) => {
       Repositories: new Repositories({ connector: gitHubConnector }),
       Users: new Users({ connector: gitHubConnector }),
       Entries: new Entries(),
-    }
+    },
   };
 }));
 
-app.listen(PORT, () => console.log(
-  `Server is now running on http://localhost:${PORT}`
-));
+apiServer.start();
 
 const gitHubStrategyOptions = {
   clientID: GITHUB_CLIENT_ID,
   clientSecret: GITHUB_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/login/github/callback"
+  // XXX: magic string
+  callbackURL: 'http://localhost:3000/login/github/callback',
 };
 
 passport.use(new GitHubStrategy(gitHubStrategyOptions, (accessToken, refreshToken, profile, cb) => {
   cb(null, profile);
 }));
 
-passport.serializeUser(function(user, cb) {
+passport.serializeUser((user, cb) => {
   cb(null, user);
 });
 
-passport.deserializeUser(function(obj, cb) {
+passport.deserializeUser((obj, cb) => {
   cb(null, obj);
 });
