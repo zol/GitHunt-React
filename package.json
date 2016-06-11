@@ -8,7 +8,7 @@
     "start-dev-api": "saturn start-dev-api ./api/index.js",
     "watch-client": "saturn watch-client ./ui/client.js",
     "dev": "saturn dev --app-server=./ui/server.js --app-client=./ui/client.js --api-server=./api/index.js",
-    "build": "saturn build ./ui/client.js",
+    "build": "./node_modules/.bin/saturn build ./ui/client.js",
     "postinstall": "npm run build",
     "start-prod": "saturn start-prod ./ui/server.js",
     "start-prod-api": "saturn start-prod-api ./api/index.js",
