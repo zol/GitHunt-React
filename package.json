@@ -4,15 +4,8 @@
   "description": "Example app for Apollo",
   "main": "index.js",
   "scripts": {
-    "start-dev": "saturn start-dev  ./ui/server.js",
-    "start-dev-api": "saturn start-dev-api ./api/index.js",
-    "watch-client": "saturn watch-client ./ui/client.js",
-    "dev": "saturn dev --app-server=./ui/server.js --app-client=./ui/client.js --api-server=./api/index.js",
-    "build": "./node_modules/.bin/saturn build ./ui/client.js",
-    "postinstall": "npm run build",
-    "start-prod": "saturn start-prod ./ui/server.js",
-    "start-prod-api": "saturn start-prod-api ./api/index.js",
-    "start": "saturn start --app-server=./ui/server.js --api-server=./api/index.js",
+    "dev": "saturn dev",
+    "start": "saturn build && saturn start",
     "lint": "eslint api ui",
     "test": "mocha --compilers js:babel-core/register --reporter spec --full-trace 'api/**/*.test.js'",
     "seed": "knex seed:run",
@@ -35,7 +28,7 @@
     "eslint-plugin-import": "^1.8.1",
     "eslint-plugin-jsx-a11y": "^1.2.2",
     "eslint-plugin-react": "^5.1.1",
-    "saturn-framework": "apollostack/saturn#5186483bdb3b5264646e5988674a0aa71e7ad28f"
+    "saturn-framework": "apollostack/saturn#0753fc451ad4c0eba1ac9ccf5e9f18b5e728ae80"
   },
   "dependencies": {
     "apollo-client": "^0.3.12",
@@ -57,5 +50,10 @@
     "request-promise": "^3.0.0",
     "sqlite3": "^3.1.4",
     "whatwg-fetch": "^1.0.0"
+  },
+  "saturn": {
+    "app-client": "./ui/client.js",
+    "app-server": "./ui/server.js",
+    "api-server": "./api/index.js"
   }
 }
