@@ -7,7 +7,7 @@
     "dev": "saturn dev",
     "start": "saturn build && saturn start",
     "lint": "eslint api ui",
-    "test": "mocha --compilers js:babel-core/register --reporter spec --full-trace 'api/**/*.test.js'",
+    "test": "saturn test",
     "seed": "knex seed:run",
     "migrate": "knex migrate:latest"
   },
