@@ -33,6 +33,7 @@
   "dependencies": {
     "apollo-client": "^0.3.12",
     "apollo-server": "^0.1.1",
+    "babel-runtime": "^6.9.2",
     "body-parser": "^1.15.1",
     "connect-session-knex": "^1.0.23",
     "cookie-parser": "^1.4.1",
