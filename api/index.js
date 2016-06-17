@@ -6,6 +6,7 @@ import { Strategy as GitHubStrategy } from 'passport-github';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import knex from './sql/connector';
+import { Tracer } from 'apollo-tracer';
 
 const KnexSessionStore = require('connect-session-knex')(session);
 const store = new KnexSessionStore({
@@ -56,6 +57,13 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
+const tracer = new Tracer({
+  TRACER_APP_KEY: '0123456789012345678901234567890123456789'
+});
+tracer.constructor.prototype.sendReport = (report) => {
+  console.log('>>>', report);
+};
+
 app.use('/graphql', apolloServer((req) => {
   // Get the query, the same way express-graphql does it
   // https://github.com/graphql/express-graphql/blob/3fa6e68582d6d933d37fa9e841da5d2aa39261cd/src/index.js#L257
@@ -94,6 +102,14 @@ app.use('/graphql', apolloServer((req) => {
       Users: new Users({ connector: gitHubConnector }),
       Entries: new Entries(),
     },
+    tracer,
+    formatError: (err) => {
+      console.log(err.stack);
+      return {
+        error: err.message,
+        details: err.stack
+      };
+    }
   };
 }));
 

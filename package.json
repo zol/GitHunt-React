@@ -47,7 +47,8 @@
   },
   "dependencies": {
     "apollo-client": "^0.3.12",
-    "apollo-server": "^0.1.1",
+    "apollo-server": "git+https://github.com/apollostack/apollo-server.git#logging-support-release",
+    "apollo-tracer": "git+https://github.com/apollostack/tracer.git#logging-support-release",
     "body-parser": "^1.15.1",
     "classnames": "^2.2.5",
     "connect-session-knex": "^1.0.23",
@@ -56,6 +57,7 @@
     "dotenv": "^2.0.0",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
+    "graphql": "git+https://github.com/meteor/graphql-js.git#logging-support-release",
     "json-loader": "^0.5.4",
     "knex": "^0.11.3",
     "lodash": "^4.12.0",
