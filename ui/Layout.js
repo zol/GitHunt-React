@@ -2,6 +2,8 @@ import React from 'react';
 import { connect } from 'react-apollo';
 import { Link } from 'react-router';
 
+import './style.css';
+
 const NavbarLink = ({ title, href, active=false }) => (
   <li className={ active && "active"}>
     <Link to={href}>
