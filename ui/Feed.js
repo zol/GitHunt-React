@@ -136,7 +136,7 @@ const FeedWithData = connect({
           ownProps.params.type.toUpperCase()
         ) || 'TOP',
       },
-      forceFetch: true,
+      forceFetch: false,
     },
   }),
 
