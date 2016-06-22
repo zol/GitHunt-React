@@ -29,6 +29,9 @@ apiServer.use(session({
   store,
 }));
 
+apiServer.use(passport.initialize());
+apiServer.use(passport.session());
+
 apiServer.get('/login/github',
   passport.authenticate('github'));
 
@@ -38,6 +41,10 @@ apiServer.get('/login/github/callback',
     res.redirect('/');
   });
 
+apiServer.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
 
 apiServer.use('/graphql', apolloServer((req) => {
   // Get the query, the same way express-graphql does it
