@@ -1,4 +1,4 @@
-import createApp from 'saturn-framework/server/app';
+import createApp from 'saturn-framework/app';
 import routes from './routes';
 
 createApp({ routes });

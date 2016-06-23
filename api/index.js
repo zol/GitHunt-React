@@ -1,4 +1,4 @@
-import apiServer from 'saturn-framework/server/api';
+import apiServer from 'saturn-framework/api';
 
 import passport from 'passport';
 import { apolloServer } from 'apollo-server';

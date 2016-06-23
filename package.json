@@ -28,7 +28,7 @@
     "eslint-plugin-import": "^1.8.1",
     "eslint-plugin-jsx-a11y": "^1.2.2",
     "eslint-plugin-react": "^5.1.1",
-    "saturn-framework": "apollostack/saturn#013639912b0a85bda9ae6a3ed357ff250d9a8381"
+    "saturn-framework": "apollostack/saturn#baa348f3e161f0fe899864699e59b1097bcf9cf7"
   },
   "dependencies": {
     "apollo-client": "^0.3.12",
@@ -53,8 +53,8 @@
     "whatwg-fetch": "^1.0.0"
   },
   "saturn": {
-    "app-client": "./ui/client.js",
-    "app-server": "./ui/server.js",
-    "api-server": "./api/index.js"
+    "app-client": "./ui",
+    "app-server": "./ui",
+    "api-server": "./api"
   }
 }
