@@ -28,7 +28,7 @@
     "eslint-plugin-import": "^1.8.1",
     "eslint-plugin-jsx-a11y": "^1.2.2",
     "eslint-plugin-react": "^5.1.1",
-    "saturn-framework": "apollostack/saturn#913fe50d8522e9064b8c34156c6006cb96ab04aa"
+    "saturn-framework": "apollostack/saturn#81158ee37f01040080dfc8b5f67d1f743ddce83a"
   },
   "dependencies": {
     "apollo-client": "^0.3.12",
