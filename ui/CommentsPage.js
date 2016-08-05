@@ -4,6 +4,7 @@ import TimeAgo from 'react-timeago';
 import RepoInfo from './RepoInfo';
 import gql from 'graphql-tag';
 import update from 'react-addons-update';
+import { Client as WS_Client } from 'ws-graphql';
 
 function Comment({ username, userUrl, content, createdAt }) {
   return (
@@ -25,9 +26,63 @@ Comment.propTypes = {
 class CommentsPage extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { noCommentContent: false };
+    this.state = { noCommentContent: false, newData: {} };
     this.submitForm = this.submitForm.bind(this);
+    this.ws_client = new WS_Client(`ws://localhost:3010`, 'graphql-protocol');
+    setTimeout(() => {
+      this.ws_client.subscribe({
+        query: 
+          `query Comment($repoName: String!) {
+            # Eventually move this into a no fetch query right on the entry
+            # since we literally just need this info to determine whether to
+            # show upvote/downvote buttons
+            currentUser {
+              login
+              html_url
+            }
+            entry(repoFullName: $repoName) {
+              id
+              postedBy {
+                login
+                html_url
+              }
+              createdAt
+              comments {
+                postedBy {
+                  login
+                  html_url
+                }
+                createdAt
+                content
+              }
+              repository {
+                full_name
+                html_url
+                description
+                open_issues_count
+                stargazers_count
+              }
+            }
+          }
+        `,
+        variables: {
+          repoName: `${this.props.params.org}/${this.props.params.repoName}`,
+        },
+        triggers: [{
+          name: 'mutation submitComment',
+          variables: {
+            repoName: `${this.props.params.org}/${this.props.params.repoName}`,
+          }
+        }],
+      },
+      (error, result) => {
+        //do something
+        console.log('result', result);
+        this.setState({ newData: result }); //re-renders
+      });
+    }, 100); 
   }
+
   submitForm(event) {
     this.setState({ noCommentContent: false });
     event.preventDefault();
@@ -50,6 +105,7 @@ class CommentsPage extends React.Component {
       });
     }
   }
+
   render() {
     const { data } = this.props;
     if (data.loading) {
@@ -104,7 +160,7 @@ class CommentsPage extends React.Component {
           <div> {
             data.entry.comments.map((comment) => (
               <Comment
-                key={comment.postedBy.login + comment.content + comment.createdAt + repo.full_name}
+                key={comment.content + comment.createdAt + repo.full_name}
                 username={comment.postedBy.login}
                 content={comment.content}
                 createdAt={comment.createdAt}

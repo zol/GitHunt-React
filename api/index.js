@@ -2,17 +2,20 @@ import express from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import { apolloServer } from 'apollo-server';
+import { Server as WS_Server, Client as WS_Client } from 'ws-graphql';
 import { Strategy as GitHubStrategy } from 'passport-github';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import knex from './sql/connector';
+import { makeExecutableSchema } from 'graphql-tools';
+import http from 'http';
 
 const KnexSessionStore = require('connect-session-knex')(session);
 const store = new KnexSessionStore({
   knex,
 });
 
-import { schema, resolvers } from './schema';
+import { schema, resolvers } from './schema'; //schema is a list
 import { GitHubConnector } from './github/connector';
 import { Repositories, Users } from './github/models';
 import { Entries, Comments } from './sql/models';
@@ -30,6 +33,16 @@ const {
 } = process.env;
 
 const app = express();
+
+var graphql_schema = makeExecutableSchema({
+  typeDefs: schema,
+  resolvers,
+});
+
+const gitHubConnector = new GitHubConnector({
+  clientId: GITHUB_CLIENT_ID,
+  clientSecret: GITHUB_CLIENT_SECRET,
+});
 
 app.use(session({
   secret: 'your secret',
@@ -76,31 +89,55 @@ app.use('/graphql', apolloServer((req) => {
       html_url: req.user.profileUrl,
       avatar_url: req.user.photos[0].value,
     };
+    ws_server.options.contextValue.user = user;
   }
-
-  const gitHubConnector = new GitHubConnector({
-    clientId: GITHUB_CLIENT_ID,
-    clientSecret: GITHUB_CLIENT_SECRET,
-  });
 
   return {
     graphiql: true,
     pretty: true,
-    resolvers,
     schema,
+    resolvers,
     context: {
       user,
       Repositories: new Repositories({ connector: gitHubConnector }),
       Users: new Users({ connector: gitHubConnector }),
       Entries: new Entries(),
       Comments: new Comments(),
+      trigger: (message) => {
+        ws_server.triggerAction(message);
+      }
     },
   };
 }));
 
-app.listen(PORT, () => console.log( // eslint-disable-line no-console
+/*app.listen(PORT, () => console.log( // eslint-disable-line no-console
   `Server is now running on http://localhost:${PORT}`
-));
+));*/
+
+var httpServer = http.createServer(app);
+httpServer.listen(PORT, function() {
+  console.log("HTTP server is listening on port " + PORT);
+});
+//Websocket Server
+
+const triggerGenerator = function(message_data) {
+  const query = message_data.query;
+  if (query.startsWith('query Comment')) {
+    return [{name: 'mutation submitComment', variables: message_data.variables}];
+  } 
+}
+
+var ws_server = new WS_Server({
+  schema: graphql_schema,
+  contextValue: {
+      //user, //need to get user value from request
+      Repositories: new Repositories({ connector: gitHubConnector }),
+      Users: new Users({ connector: gitHubConnector }),
+      Entries: new Entries(),
+      Comments: new Comments(),
+  },
+  triggerGenerator: triggerGenerator,
+}, httpServer);
 
 const gitHubStrategyOptions = {
   clientID: GITHUB_CLIENT_ID,

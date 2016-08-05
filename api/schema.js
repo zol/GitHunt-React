@@ -76,11 +76,19 @@ const rootResolvers = {
         ))
         .then(() => context.Entries.getByRepoFullName(repoFullName));
     },
-    submitComment(_, { repoFullName, commentContent }, context) {
+    submitComment(_, { repoFullName, commentContent, currentUser }, context) {
       if (!context.user) {
         throw new Error('Must be logged in to submit a comment.');
       }
       return Promise.resolve()
+        .then(() => (
+          context.trigger({
+            name: 'mutation submitComment',
+            variables: {
+              repoName: repoFullName,
+            }
+          })
+        ))
         .then(() => (
           context.Comments.submitComment(
             repoFullName,
@@ -90,7 +98,7 @@ const rootResolvers = {
         ))
         .then(([id]) => (
           context.Comments.getCommentById(id)
-        ));
+        ))
     },
 
     vote(_, { repoFullName, type }, context) {
