@@ -28,59 +28,6 @@ class CommentsPage extends React.Component {
     super(props);
     this.state = { noCommentContent: false, newData: {} };
     this.submitForm = this.submitForm.bind(this);
-    this.ws_client = new WS_Client(`ws://localhost:3010`, 'graphql-protocol');
-    setTimeout(() => {
-      this.ws_client.subscribe({
-        query: 
-          `query Comment($repoName: String!) {
-            # Eventually move this into a no fetch query right on the entry
-            # since we literally just need this info to determine whether to
-            # show upvote/downvote buttons
-            currentUser {
-              login
-              html_url
-            }
-            entry(repoFullName: $repoName) {
-              id
-              postedBy {
-                login
-                html_url
-              }
-              createdAt
-              comments {
-                postedBy {
-                  login
-                  html_url
-                }
-                createdAt
-                content
-              }
-              repository {
-                full_name
-                html_url
-                description
-                open_issues_count
-                stargazers_count
-              }
-            }
-          }
-        `,
-        variables: {
-          repoName: `${this.props.params.org}/${this.props.params.repoName}`,
-        },
-        triggers: [{
-          name: 'mutation submitComment',
-          variables: {
-            repoName: `${this.props.params.org}/${this.props.params.repoName}`,
-          }
-        }],
-      },
-      (error, result) => {
-        //do something
-        console.log('result', result);
-        this.setState({ newData: result }); //re-renders
-      });
-    }, 100); 
   }
 
   submitForm(event) {
@@ -243,6 +190,7 @@ const CommentWithData = connect({
       variables: {
         repoName: `${ownProps.params.org}/${ownProps.params.repoName}`,
       },
+      graphQLSubscription: true,
     },
   }),
   mapMutationsToProps: () => ({
@@ -272,7 +220,7 @@ const CommentWithData = connect({
           content: commentContent,
         },
       },
-      updateQueries: {
+      /*updateQueries: {
         Comment: (prev, { mutationResult }) => {
           const newComment = mutationResult.data.submitComment;
           return update(prev, {
@@ -283,7 +231,7 @@ const CommentWithData = connect({
             },
           });
         },
-      },
+      },*/
     }),
   }),
 })(CommentsPage);

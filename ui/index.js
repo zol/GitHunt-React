@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
-import ApolloClient, { createNetworkInterface, addTypename } from 'apollo-client';
+import ApolloClient, { createNetworkInterface, addTypename, addGraphQLSubscriptions } from 'apollo-client';
 import { ApolloProvider } from 'react-apollo';
 import { WebSocketClient } from 'websocket';
 import { Client as WS_Client } from 'ws-graphql';
@@ -23,6 +23,7 @@ function logPageView() {
   ReactGA.set({ page: window.location.pathname });
   ReactGA.pageview(window.location.pathname);
 }
+const ws_client = new WS_Client(`ws://localhost:3010`, 'graphql-protocol');
 
 const client = new ApolloClient({
   networkInterface: createNetworkInterface('/graphql', {
@@ -35,7 +36,8 @@ const client = new ApolloClient({
     }
     return null;
   },
-  shouldBatch: true,
+  wsClient: ws_client,
+  //shouldBatch: true,
 });
 
 render((
