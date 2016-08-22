@@ -25,7 +25,7 @@ function logPageView() {
 const client = new ApolloClient({
   networkInterface: createNetworkInterface('/graphql', {
     credentials: 'same-origin',
-  }),
+  }, true),
   queryTransformer: addTypename,
   dataIdFromObject: (result) => {
     if (result.id && result.__typename) { // eslint-disable-line no-underscore-dangle
