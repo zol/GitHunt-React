@@ -1,9 +1,12 @@
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, withApollo } from 'react-apollo';
+import ApolloClient from 'apollo-client';
 import RepoInfo from './RepoInfo';
 import classNames from 'classnames';
 import gql from 'graphql-tag';
 import { Link } from 'react-router';
+
+import { COMMENT_QUERY } from './CommentsPage';
 
 function Loading() {
   return (
@@ -49,8 +52,14 @@ VoteButtons.propTypes = {
 };
 
 
-function FeedEntry({ entry, currentUser, onVote }) {
+const FeedEntry = ({ entry, currentUser, onVote, client }) => {
   const repoLink = `/${entry.repository.full_name}`;
+  const prefetchComments = (repoFullName) => () => {
+    client.query({
+      query: COMMENT_QUERY,
+      variables: { repoName: repoFullName },
+    });
+  };
 
   return (
     <div className="media">
@@ -90,26 +99,34 @@ function FeedEntry({ entry, currentUser, onVote }) {
           username={entry.postedBy.login}
         >
           <Link to={repoLink}>
-            View comments ({entry.commentCount})
+            <span onMouseOver={prefetchComments(entry.repository.full_name)}>
+              View comments ({entry.commentCount})
+            </span>
           </Link>
         </RepoInfo>
       </div>
     </div>
   );
-}
+};
+
 
 FeedEntry.propTypes = {
   onVote: React.PropTypes.func,
   currentUser: React.PropTypes.object,
   entry: React.PropTypes.object,
+  client: React.PropTypes.instanceOf(ApolloClient).isRequired,
 };
+
+const FeedEntryWithApollo = withApollo(FeedEntry);
+
+
 
 function FeedContent({ entries = [], currentUser, onVote, onLoadMore }) {
   if (entries && entries.length) {
     return (
       <div> {
         entries.map((entry) => (
-          !!entry ? <FeedEntry
+          !!entry ? <FeedEntryWithApollo
             key={entry.repository.full_name}
             entry={entry}
             currentUser={currentUser}
