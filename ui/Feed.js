@@ -99,7 +99,7 @@ const FeedEntry = ({ entry, currentUser, onVote, client }) => {
           username={entry.postedBy.login}
         >
           <Link to={repoLink} onMouseOver={prefetchComments(entry.repository.full_name)}>
-              View comments ({entry.commentCount})
+            View comments ({entry.commentCount})
           </Link>
         </RepoInfo>
       </div>
