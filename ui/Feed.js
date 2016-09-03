@@ -98,10 +98,8 @@ const FeedEntry = ({ entry, currentUser, onVote, client }) => {
           user_url={entry.postedBy.html_url}
           username={entry.postedBy.login}
         >
-          <Link to={repoLink}>
-            <span onMouseOver={prefetchComments(entry.repository.full_name)}>
+          <Link to={repoLink} onMouseOver={prefetchComments(entry.repository.full_name)}>
               View comments ({entry.commentCount})
-            </span>
           </Link>
         </RepoInfo>
       </div>
@@ -118,8 +116,6 @@ FeedEntry.propTypes = {
 };
 
 const FeedEntryWithApollo = withApollo(FeedEntry);
-
-
 
 function FeedContent({ entries = [], currentUser, onVote, onLoadMore }) {
   if (entries && entries.length) {
