@@ -111,11 +111,10 @@ class CommentsPage extends React.Component {
     });
   }
 
-  // TODO: can't do this at the moment, because updateQuery is undefined during componentWillMount
-  /* componentDidMount() {
+  componentDidMount() {
     console.log('props', this.props);
     this.subscribe(this.props.entry.repository.full_name, this.props.updateCommentsQuery);
-  } */
+  }
 
   componentWillReceiveProps(nextProps) {
     if (this.subscriptionRepoName !== nextProps.entry.repository.full_name) {
