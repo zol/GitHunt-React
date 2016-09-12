@@ -6,7 +6,6 @@ import RepoInfo from './RepoInfo';
 import gql from 'graphql-tag';
 import update from 'react-addons-update';
 
-
 // helper function checks for duplicate comments, which we receive because we
 // get subscription updates for our own comments as well.
 // TODO it's pretty inefficient to scan all the comments every time.
@@ -112,8 +111,9 @@ class CommentsPage extends React.Component {
   }
 
   componentDidMount() {
-    console.log('props', this.props);
-    this.subscribe(this.props.entry.repository.full_name, this.props.updateCommentsQuery);
+    if (this.props.loading === false){
+      this.subscribe(this.props.entry.repository.full_name, this.props.updateCommentsQuery);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
