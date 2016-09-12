@@ -72,17 +72,19 @@ class CommentsPage extends React.Component {
   }
 
   subscribe(repoName, updateCommentsQuery) {
-    const SUBSCRIPTION_QUERY = gql`subscription onCommentAdded($repoFullName: String!){
-      commentAdded(repoFullName: $repoFullName){
-        id
-        postedBy {
-          login
-          html_url
+    const SUBSCRIPTION_QUERY = gql`
+      subscription onCommentAdded($repoFullName: String!){
+        commentAdded(repoFullName: $repoFullName){
+          id
+          postedBy {
+            login
+            html_url
+          }
+          createdAt
+          content
         }
-        createdAt
-        content
       }
-    }`;
+    `;
     this.subscriptionRepoName = repoName;
     this.subscriptionObserver = this.props.client.subscribe({
       query: SUBSCRIPTION_QUERY,
@@ -91,9 +93,13 @@ class CommentsPage extends React.Component {
       next(data) {
         const newComment = data.commentAdded;
         updateCommentsQuery((previousResult) => {
+          // if it's our own mutation, we might get the subscription result
+          // after the mutation result.
           if (isDuplicateComment(newComment, previousResult.entry.comments)) {
             return previousResult;
           }
+          // update returns a new "immutable" list with the new comment
+          // added to the front.
           return update(
             previousResult,
             {
