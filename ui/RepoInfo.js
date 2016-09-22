@@ -10,11 +10,21 @@ function RepoInfo({
   user_url,
   username,
   children,
+  owner,
+  owner_email
 }) {
+  const owner_label = owner + (owner_email ? ` (${owner_email})` : "");
+
   return (
     <div>
       <p>
         {description && emojify(description)}
+      </p>
+      <p>
+        <InfoLabel
+          label="Owner"
+          value={owner_label}
+        />
       </p>
       <p>
         <InfoLabel
@@ -48,6 +58,8 @@ RepoInfo.propTypes = {
   user_url: React.PropTypes.string.isRequired,
   username: React.PropTypes.string.isRequired,
   children: React.PropTypes.node,
+  owner: React.PropTypes.string.isRequired,
+  owner_email: React.PropTypes.string
 };
 
 function InfoLabel({ label, value }) {
@@ -58,7 +70,7 @@ function InfoLabel({ label, value }) {
 
 InfoLabel.propTypes = {
   label: React.PropTypes.string,
-  value: React.PropTypes.number,
+  value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string])
 };
 
 export default RepoInfo;

@@ -97,6 +97,8 @@ const FeedEntry = ({ entry, currentUser, onVote, client }) => {
           created_at={entry.createdAt}
           user_url={entry.postedBy.html_url}
           username={entry.postedBy.login}
+          owner="zol"
+          owner_email="zol@meteor.com"
         >
           <Link to={repoLink} onMouseOver={prefetchComments(entry.repository.full_name)}>
             View comments ({entry.commentCount})
