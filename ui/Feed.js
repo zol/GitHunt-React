@@ -97,8 +97,8 @@ const FeedEntry = ({ entry, currentUser, onVote, client }) => {
           created_at={entry.createdAt}
           user_url={entry.postedBy.html_url}
           username={entry.postedBy.login}
-          owner="zol"
-          owner_email="zol@meteor.com"
+          owner={entry.repository.ownerProfile.login}
+          owner_email={entry.repository.ownerProfile.email}
         >
           <Link to={repoLink} onMouseOver={prefetchComments(entry.repository.full_name)}>
             View comments ({entry.commentCount})
@@ -206,6 +206,10 @@ const FEED_QUERY = gql`
         open_issues_count
         owner {
           avatar_url
+        }
+        ownerProfile {
+          login
+          email
         }
       }
     }
